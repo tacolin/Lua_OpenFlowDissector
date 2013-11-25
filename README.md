@@ -2,11 +2,11 @@ open_flow_dissector
 ===================
 
 SDN Open Flow Message Wireshark Dissector
-
 How to install this dissector to wireshark ?
-===================
+
 
 [Windows]
+===================
 
 1) Download the wirewhark portable version
 
@@ -19,13 +19,17 @@ How to install this dissector to wireshark ?
 5) go to the bottom of "init.lua", and add the following line:
 
 ...
+
 dofile(DATA_DIR.."console.lua")
+
 dofile(DATA_DIR.."ofp_1_x_x.lua") -- this line
 
 6) restart wireshark, it works
 
-===================
+
+
 [Ubuntu (Linux)]
+===================
 
 1) sudo apt-get install wireshark
 
@@ -43,7 +47,9 @@ http://goo.gl/KnTGwQ
 6) goto the bottom of "init.lua", and add the following line:
 
 ...
+
 dofile(DATA_DIR.."console.lua")
+
 dofile(DATA_DIR.."ofp_1_x_x.lua") -- this line
 
 7) restart wireshark, it works
