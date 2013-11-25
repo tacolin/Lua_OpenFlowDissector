@@ -1,6 +1,6 @@
 do
 
-    local ofp_proto = Proto("sdn_ofp", "SDN OpenFlow 1.3.1")
+    local ofp_proto = Proto("ofp", "SDN OpenFlow 1.3.1")
 
     ofp_proto.fields = {}
     
