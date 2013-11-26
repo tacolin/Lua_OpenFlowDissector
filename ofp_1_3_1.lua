@@ -82,10 +82,10 @@ do
     
     fds.ofp_hello_elements_type = ProtoField.uint16("ofp.hello_elem_type", "type", base.DEC, hello_elem_type_desc)
     
-    fds.ofp_hello_elements_bitmap_1_0_sup  = ProtoField.uint32("ofp.1_0_sup", "OFP Ver 1.0.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x01)
-    fds.ofp_hello_elements_bitmap_1_1_sup  = ProtoField.uint32("ofp.1_1_sup", "OFP Ver 1.1.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x02)
-    fds.ofp_hello_elements_bitmap_1_2_sup  = ProtoField.uint32("ofp.1_2_sup", "OFP Ver 1.2.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x04)
-    fds.ofp_hello_elements_bitmap_1_3_sup  = ProtoField.uint32("ofp.1_3_sup", "OFP Ver 1.3.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x08)
+    fds.ofp_hello_elements_bitmap_1_0_sup  = ProtoField.uint32("ofp.1_0_sup", "OFP Ver 1.0.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x02)
+    fds.ofp_hello_elements_bitmap_1_1_sup  = ProtoField.uint32("ofp.1_1_sup", "OFP Ver 1.1.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x04)
+    fds.ofp_hello_elements_bitmap_1_2_sup  = ProtoField.uint32("ofp.1_2_sup", "OFP Ver 1.2.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x08)
+    fds.ofp_hello_elements_bitmap_1_3_sup  = ProtoField.uint32("ofp.1_3_sup", "OFP Ver 1.3.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x10)
     
     ofp_proto.dissector = function(buffer, info, root_tree)
     
