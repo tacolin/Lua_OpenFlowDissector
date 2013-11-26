@@ -71,7 +71,7 @@ do
     fds.ofp_header_length  = ProtoField.uint16("ofp.length", "length", base.DEC)
     fds.ofp_header_xid     = ProtoField.uint32("ofp.xid", "xid", base.DEC)
 
-    local hello_elem_bitmaps_desc = {
+    local bitmap_desc = {
         [0] = "False",
         [1] = "True",
     }
@@ -82,10 +82,18 @@ do
     
     fds.ofp_hello_elements_type = ProtoField.uint16("ofp.hello_elem_type", "type", base.DEC, hello_elem_type_desc)
     
-    fds.ofp_hello_elements_bitmap_1_0_sup  = ProtoField.uint32("ofp.1_0_sup", "OFP Ver 1.0.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x02)
-    fds.ofp_hello_elements_bitmap_1_1_sup  = ProtoField.uint32("ofp.1_1_sup", "OFP Ver 1.1.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x04)
-    fds.ofp_hello_elements_bitmap_1_2_sup  = ProtoField.uint32("ofp.1_2_sup", "OFP Ver 1.2.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x08)
-    fds.ofp_hello_elements_bitmap_1_3_sup  = ProtoField.uint32("ofp.1_3_sup", "OFP Ver 1.3.x Supported", base.DEC, hello_elem_bitmaps_desc, 0x10)
+    fds.ofp_hello_elements_bitmap_1_0_sup  = ProtoField.uint32("ofp.hello_elem_bitmap", "1.0.x Supported", base.DEC, bitmap_desc, 0x02)
+    fds.ofp_hello_elements_bitmap_1_1_sup  = ProtoField.uint32("ofp.hello_elem_bitmap", "1.1.x Supported", base.DEC, bitmap_desc, 0x04)
+    fds.ofp_hello_elements_bitmap_1_2_sup  = ProtoField.uint32("ofp.hello_elem_bitmap", "1.2.x Supported", base.DEC, bitmap_desc, 0x08)
+    fds.ofp_hello_elements_bitmap_1_3_sup  = ProtoField.uint32("ofp.hello_elem_bitmap", "1.3.x Supported", base.DEC, bitmap_desc, 0x10)
+
+    fds.ofp_feature_reply_cap_flow_stats  = ProtoField.uint32("ofp.feature_reply_cap", "OFPC_FLOW_STATS", base.DEC, bitmap_desc, 0x01)
+    fds.ofp_feature_reply_cap_table_stats = ProtoField.uint32("ofp.feature_reply_cap", "OFPC_TABLE_STATS", base.DEC, bitmap_desc, 0x02)
+    fds.ofp_feature_reply_cap_port_stats  = ProtoField.uint32("ofp.feature_reply_cap", "OFPC_PORT_STATS", base.DEC, bitmap_desc, 0x04)
+    fds.ofp_feature_reply_cap_group_stats = ProtoField.uint32("ofp.feature_reply_cap", "OFPC_GROUP_STATS", base.DEC, bitmap_desc, 0x08)
+    fds.ofp_feature_reply_cap_ip_reasm    = ProtoField.uint32("ofp.feature_reply_cap", "OFPC_IP_REASM", base.DEC, bitmap_desc, 0x20)
+    fds.ofp_feature_reply_cap_queue_stats = ProtoField.uint32("ofp.feature_reply_cap", "OFPC_QUEUE_STATS", base.DEC, bitmap_desc, 0x40)
+    fds.ofp_feature_reply_cap_port_blocked = ProtoField.uint32("ofp.feature_reply_cap", "OFPC_PORT_BLOCKED", base.DEC, bitmap_desc, 0x100)
     
     ofp_proto.dissector = function(buffer, info, root_tree)
     
@@ -112,11 +120,9 @@ do
         header_tree:add(fds.ofp_header_type , ofp_type)
         header_tree:add(fds.ofp_header_length , ofp_length)
         header_tree:add(fds.ofp_header_xid , ofp_xid)
-
-        local err_msg = ""
-        
+       
         if (ofp_length_val - offset) > 0 then
-            if ofp_type_val == 0 then -- OFPT_HELLO
+            if ofp_type_val == 0 then --OFPT_HELLO
 
                 local elem_tree = ofp_tree:add( buffer(offset, ofp_length_val - offset), "OFP Hello Elements (" .. (ofp_length_val - offset) .. " bytes)")
 
@@ -131,6 +137,7 @@ do
                 
                 elem_tree:add( fds.ofp_hello_elements_type, elem_type)
                 elem_tree:add( elem_length, "length:", elem_length:uint() )
+                elem_tree:add( elem_bitmap, "supported versions:")
                 elem_tree:add( fds.ofp_hello_elements_bitmap_1_0_sup, elem_bitmap)
                 elem_tree:add( fds.ofp_hello_elements_bitmap_1_1_sup, elem_bitmap)
                 elem_tree:add( fds.ofp_hello_elements_bitmap_1_2_sup, elem_bitmap)
@@ -181,20 +188,62 @@ do
                 error_tree:add( error_code, "code:", error_code:uint(), "("..error_code_desc[error_type_val][error_code_val]..")" )
                 error_tree:add( error_data, "data:", error_data:string() )
                 
+            elseif ofp_type_val == 6 then -- OFPT_FEATURE_REPLY
+                
+                local fea_reply_tree = ofp_tree:add( buffer(offset, ofp_length_val - offset), "OFP Feature Reply (" .. (ofp_length_val - offset) .. " bytes)")
+                
+                local datapath_id = buffer( offset, 8 )
+                offset = offset + 8
+                
+                local n_buffers = buffer( offset, 4 )
+                offset = offset + 4
+                
+                local n_tables = buffer( offset, 1 )
+                offset = offset + 1
+                
+                local auxiliary_id = buffer( offset, 1 )
+                offset = offset + 1 
+                
+                local pad = buffer( offset, 2 )
+                offset = offset + 2
+                
+                local capabilities = buffer( offset, 4 )
+                offset = offset + 4
+                
+                local reserved = buffer( offset, 4 )
+                offset = offset + 4
+                
+                fea_reply_tree:add( datapath_id, "datapath_id:",  tostring(datapath_id:uint64()) )
+                fea_reply_tree:add( n_buffers, "n_buffers:", n_buffers:uint() )
+                fea_reply_tree:add( n_tables, "n_tables:", n_tables:uint() )
+                fea_reply_tree:add( auxiliary_id, "auxiliary_id:", auxiliary_id:uint() )
+                fea_reply_tree:add( pad, "pad:", tostring( pad:bytes() ) )
+
+                fea_reply_tree:add( capabilities, "capabilites:" )
+                fea_reply_tree:add(fds.ofp_feature_reply_cap_flow_stats, capabilities)
+                fea_reply_tree:add(fds.ofp_feature_reply_cap_table_stats , capabilities)
+                fea_reply_tree:add(fds.ofp_feature_reply_cap_port_stats, capabilities)  
+                fea_reply_tree:add(fds.ofp_feature_reply_cap_group_stats, capabilities) 
+                fea_reply_tree:add(fds.ofp_feature_reply_cap_ip_reasm, capabilities)    
+                fea_reply_tree:add(fds.ofp_feature_reply_cap_queue_stats, capabilities) 
+                fea_reply_tree:add(fds.ofp_feature_reply_cap_port_blocked, capabilities)
+
+                fea_reply_tree:add( reserved, "reserved:", reserved:uint() )
+                
             else
                 local payload = ofp_tree:add( buffer(offset, ofp_length_val - offset), "Unsupported Payload (Coming Soon ...)")
             end
                             
         else
-            err_msg = "Decoded Failed"
+--            ofp_tree:add_expert_info(PI_DEBUG, PI_NOTE, "This Message is old version ( < 1.3.1 )")
         end
 
-        local cols_info = type_f_desc[ofp_type:uint()] .. " [xid=" .. ofp_xid:uint() .. "] " .. err_msg 
+        local cols_info = type_f_desc[ofp_type:uint()] .. " [xid=" .. ofp_xid:uint() .. "] "
         
         info.cols.protocol = "Open Flow 1.3.1"
         info.cols.info     = cols_info
     end    
-    
+      
     local tcp_table = DissectorTable.get("tcp.port")
     tcp_table:add(6633, ofp_proto)
     
