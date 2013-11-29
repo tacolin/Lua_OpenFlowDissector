@@ -132,6 +132,12 @@ do
         local ofp_length = buffer(offset, 2)
         local ofp_length_val = ofp_length:uint()
         offset = offset + 2
+
+        -- check TCP segment PDU or not
+        if buffer:len() < ofp_length_val then
+            info.desegment_len = DESEGMENT_ONE_MORE_SEGMENT
+            return
+        end
         
         local ofp_xid = buffer(offset, 4)
         offset = offset + 4
