@@ -1,5 +1,5 @@
 do
-    package.path = package.path .. ";Z:\\github\\open_flow_dissector\\?.lua"
+    --package.path = package.path .. ";Z:\\github\\open_flow_dissector\\?.lua"
     
     local ofp_proto = Proto("ofp", "SDN OpenFlow 1.3.1")
     ofp_proto.fields = {}
