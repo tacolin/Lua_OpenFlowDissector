@@ -12,7 +12,7 @@ How to install this dissector to wireshark ?
 
 2) make sure that you can execute wireshark successfully in your computer
 
-3) put the "ofp_1_x_x.lua" to the \WiresharkPortable\App\Wireshark\
+3) put all lua files to the \WiresharkPortable\App\Wireshark\
 
 4) open the "init.lua" in the \WiresharkPortable\App\Wireshark\
 
@@ -22,7 +22,7 @@ How to install this dissector to wireshark ?
 
 dofile(DATA_DIR.."console.lua")
 
-dofile(DATA_DIR.."ofp_1_x_x.lua") -- this line
+dofile(DATA_DIR.."ofp_1_x_x.lua") -- add this line
 
 6) restart wireshark, it works
 
@@ -40,7 +40,7 @@ dofile(DATA_DIR.."ofp_1_x_x.lua") -- this line
 if you don't known how to do, you could see this place:
 http://goo.gl/KnTGwQ
 
-4) put the "ofp_1_x_x.lua" to the /usr/share/wireshark/
+4) put all lua files to the /usr/share/wireshark/
 
 5) open the "init.lua" in the /usr/share/wireshark/
 
@@ -50,6 +50,6 @@ http://goo.gl/KnTGwQ
 
 dofile(DATA_DIR.."console.lua")
 
-dofile(DATA_DIR.."ofp_1_x_x.lua") -- this line
+dofile(DATA_DIR.."ofp_1_x_x.lua") -- add this line
 
 7) restart wireshark, it works
